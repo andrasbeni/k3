@@ -1,0 +1,15 @@
+apiVersion: webapplication.abeni/v1
+kind: K3
+metadata:
+  labels:
+    app.kubernetes.io/name: k3
+    app.kubernetes.io/instance: k3-sample
+    app.kubernetes.io/part-of: k3
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: k3
+  name: k3-sample
+  namespace: k3-system
+spec:
+  image: nginx:latest
+  replicas: 5
+  host: example.com

@@ -1,0 +1,46 @@
+name: Build and push
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build and push docker image
+    runs-on: ubuntu-latest
+    # env:
+      # GCR_KEY: ${{ secrets.GCR_KEY }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.19
+
+      - id: 'serviceaccount'
+        uses: 'google-github-actions/auth@v1'
+        with:
+          # workload_identity_provider: 'projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider'
+          service_account: 'serviceaccount@alert-vim-385406.iam.gserviceaccount.com'
+          credentials_json: '${{ secrets.GCR_KEY }}'
+
+      - uses: 'google-github-actions/setup-gcloud@v1'
+
+      - run: |
+          gcloud auth configure-docker
+
+      - run: make docker-build docker-push IMG=gcr.io/alert-vim-385406/operator:${{ github.sha }}
+
+      - run: docker image tag gcr.io/alert-vim-385406/operator:${{ github.sha }} gcr.io/alert-vim-385406/operator:latest
+
+      - run: docker push gcr.io/alert-vim-385406/operator:latest

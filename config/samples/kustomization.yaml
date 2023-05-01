@@ -1,0 +1,4 @@
+## Append samples of your project ##
+resources:
+- webapplication_v1_k3.yaml
+#+kubebuilder:scaffold:manifestskustomizesamples
